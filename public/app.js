@@ -1,5 +1,5 @@
 import * as E from './game.js';
-import { CLUBS, FLAGS, NATIONS, POSITIONS, POS_NAMES, BY_ID, suggest } from './game.js';
+import { CLUBS, FLAGS, NATIONS, POSITIONS, POS_NAMES, BY_ID, suggest, resolve, matches } from './game.js';
 // Trifecta UI. Part 1 is the QR code encoder, part 2 is the game screens.
 
 // ======== PART 1: QR CODE ENCODER (MIT licensed, Kazuhiko Arase) ========
@@ -1404,7 +1404,7 @@ function renderLocalSetup() {
   <div class="seg"><button class="${F.n === 2 ? 'on' : ''}" data-act="form" data-k="n" data-v="2">2 players</button><button class="${F.n === 3 ? 'on' : ''}" data-act="form" data-k="n" data-v="3">3 players</button></div>
   ${inputs}
   ${timerSeg()}
-  <p style="margin-top:12px">Each player secretly chooses a clue on their own turn (pass the device) before the timer runs out. Then everybody races to hit their buzzer. First buzz gets to answer.</p>
+  <p style="margin-top:12px">Each player secretly chooses a clue on their own turn (pass the device) before the timer runs out. Then everybody races to hit the buzzer (or press space). First buzz gets to answer, by typing or by voice. A wrong answer knocks you out of the round and the others can buzz again.</p>
   <div style="margin-top:16px"><button class="btn" data-act="startLocal">Kick off</button></div></div>`;
 }
 
@@ -1526,6 +1526,50 @@ function pickView() {
   return h + `<div class="card">${body}<div class="msg ${ctx.mt}">${esc(ctx.msg)}</div></div>` + pickStatus();
 }
 
+// ---- voice ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const VOICE = { ok: !!SR, on: false, auto: store.get('voice') === '1', rec: null };
+
+function voiceStop() {
+  VOICE.on = false;
+  if (VOICE.rec) { try { VOICE.rec.abort(); } catch (e) { /* ignore */ } VOICE.rec = null; }
+  const b = $('.mic'); if (b) { b.classList.remove('live'); b.textContent = '🎙 Say it'; }
+}
+
+function voiceStart() {
+  if (!VOICE.ok || VOICE.on) return;
+  const rec = new SR();
+  rec.lang = 'en-GB'; rec.interimResults = true; rec.maxAlternatives = 5; rec.continuous = false;
+  VOICE.rec = rec; VOICE.on = true;
+  rec.onresult = ev => {
+    const res = ev.results[ev.results.length - 1];
+    const inp = $('#ans');
+    if (inp) { inp.value = res[0].transcript; inp.dataset.id = ''; inp.dataset.name = ''; }
+    if (!res.isFinal) return;
+    // prefer a heard alternative that is a real player and fits the clues
+    let best = null;
+    for (let k = 0; k < res.length; k++) {
+      const r = resolve(res[k].transcript);
+      const p = r.player || (r.ambiguous && r.ambiguous.find(x => G && matches(x, G.crit)));
+      if (!p) continue;
+      if (!best) best = { p, t: res[k].transcript };
+      if (G && matches(p, G.crit)) { best = { p, t: res[k].transcript }; break; }
+    }
+    voiceStop();
+    if (best && inp) { inp.value = best.p.name; inp.dataset.id = best.p.id; inp.dataset.name = best.p.name; submitAnswer(); }
+    else { showSugg(); flash('Heard "' + res[0].transcript + '" but no match. Tap a name below, type it, or say it again.', 'bad'); }
+  };
+  rec.onerror = ev => {
+    const bad = ev.error === 'not-allowed' || ev.error === 'service-not-allowed';
+    voiceStop();
+    if (bad) { VOICE.ok = false; flash('Microphone blocked. Allow it in your browser to use voice.', 'bad'); render(); }
+    else if (ev.error !== 'aborted') flash("Didn't catch that. Tap Say it to try again.", 'info');
+  };
+  rec.onend = () => { if (VOICE.rec === rec) voiceStop(); };
+  try { rec.start(); } catch (e) { voiceStop(); }
+  const b = $('.mic'); if (b) { b.classList.add('live'); b.textContent = '🎙 Listening… tap to stop'; }
+}
+
 // ---- answer ----
 function statusPills() {
   return `<div class="status">${G.players.map((p, i) => {
@@ -1537,25 +1581,37 @@ function statusPills() {
 
 function inputBox(label) {
   return `<div class="card">${label ? `<h3 style="margin-bottom:8px">${label}</h3>` : ''}<div class="ans"><input id="ans" class="in" autocomplete="off" autocapitalize="words" enterkeyhint="go" placeholder="Type a footballer's name…"><div id="sugg" class="sugg hide"></div></div>
-  <div class="row" style="margin-top:10px"><button class="btn" data-act="submit">Answer</button><button class="btn alt" data-act="pass">Pass</button></div>
+  <div class="row" style="margin-top:10px"><button class="btn" data-act="submit">Answer</button>${micBtn()}<button class="btn alt" data-act="pass">Pass</button></div>
   <div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div></div>`;
+}
+
+function micBtn() {
+  return VOICE.ok ? `<button class="btn alt mic ${VOICE.on ? 'live' : ''}" data-act="mic" type="button">${VOICE.on ? '🎙 Listening… tap to stop' : '🎙 Say it'}</button>` : '';
 }
 
 function answerView() {
   const total = G.mode === 'local' ? E.CFG.LOCAL_ANSWER_MS : E.CFG.ANSWER_MS;
   let h = tiles(true) + `<div class="bar"><i data-until="${G.deadline}" data-total="${total}"></i></div>`;
+  const holderBar = `<div class="bar"><i data-until="${G.holderUntil}" data-total="${E.CFG.BUZZ_MS}" style="background:${PCOL[G.holder]}"></i></div>`;
   if (ctx.kind === 'local') {
     if (G.holder === null) {
       h += `<div class="buzzers" style="grid-template-columns:repeat(${G.n},1fr)">${G.players.map((p, i) => `<button class="buzz" style="--c:${PCOL[i]}" data-act="buzz" data-i="${i}" ${G.locked.includes(i) ? 'disabled' : ''}>${esc(p.name)}<br><small>${G.locked.includes(i) ? 'out' : 'BUZZ'}</small></button>`).join('')}</div>
+      ${VOICE.ok ? `<button class="link" data-act="voiceauto" style="display:block;margin:6px auto;text-decoration:underline">Voice answers: ${VOICE.auto ? 'on (mic opens when you buzz)' : 'off'}</button>` : ''}
       <div class="msg ${ctx.mt}">${esc(ctx.msg)}</div>
       <button class="btn alt" data-act="giveup">Nobody knows — skip</button>`;
     } else {
-      h += `<div class="bar"><i data-until="${G.holderUntil}" data-total="${E.CFG.BUZZ_MS}" style="background:${PCOL[G.holder]}"></i></div>` + inputBox(`${esc(nm(G.holder))}, your answer`);
+      h += holderBar + inputBox(`${esc(nm(G.holder))}, your answer`);
     }
   } else if (G.locked.includes(ctx.me)) {
     h += `<div class="card"><h3>You're out this round</h3><p>You named someone who does not fit, or passed. Waiting for the others…</p><div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div></div>`;
+  } else if (G.holder === null) {
+    h += `<div class="buzzers" style="grid-template-columns:1fr"><button class="buzz big" style="--c:${PCOL[ctx.me]}" data-act="buzz" data-i="${ctx.me}">BUZZ<br><small>first one in gets to answer · or press space</small></button></div>
+    ${VOICE.ok ? `<button class="link" data-act="voiceauto" style="display:block;margin:6px auto;text-decoration:underline">Voice answers: ${VOICE.auto ? 'on (mic opens when you buzz)' : 'off'}</button>` : ''}
+    <div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div>`;
+  } else if (G.holder === ctx.me) {
+    h += holderBar + inputBox('You buzzed first! Who fits all three clues?');
   } else {
-    h += inputBox('Who fits all three clues?');
+    h += holderBar + `<div class="card"><h3>${esc(nm(G.holder))} buzzed in</h3><p>They are answering. If they miss, you can buzz again.</p></div>`;
   }
   return h + statusPills();
 }
@@ -1660,11 +1716,19 @@ function scheduleAI() {
       planned.add(key);
       const plan = E.aiPlan(G, i, Date.now());
       if (!plan) return;
-      after(plan.at - Date.now(), () => {
+      const think = rnd(1100, 2600);
+      const tryBuzz = () => {
         if (!G || G.round !== round || G.phase !== 'answer' || G.locked.includes(i)) return;
-        E.answer(G, i, { id: plan.id }, Date.now());
+        if (G.holder !== null) { after(500, tryBuzz); return; }
+        E.buzz(G, i, Date.now());
         G.v++; render();
-      });
+        after(think, () => {
+          if (!G || G.round !== round || G.phase !== 'answer' || G.holder !== i) return;
+          E.answer(G, i, { id: plan.id }, Date.now());
+          G.v++; render();
+        });
+      };
+      after(plan.at - think - Date.now(), tryBuzz);
     });
   }
 }
@@ -1714,6 +1778,7 @@ function resultMsg(r, text) {
     late: ['Too slow!', 'bad'],
     locked: ["You're out this round.", 'bad'],
     nobuzz: ['Hit your buzzer first.', 'bad'],
+    held: ['Too slow, someone buzzed first.', 'bad'],
     net: ['Connection problem, try again.', 'bad'],
     taken: ['Someone already took that clue.', 'bad'],
   };
@@ -1795,10 +1860,16 @@ const actions = {
     if (ctx.kind === 'online') { await api({ action: 'skip' }); return; }
     E.skip(G, ctx.kind === 'local' ? G.holder : ctx.me, Date.now()); G.v++; render();
   },
-  buzz(el) {
-    const r = E.buzz(G, Number(el.dataset.i), Date.now());
-    if (r.ok) { G.v++; render(); }
+  async buzz(el) {
+    const i = Number(el.dataset.i);
+    if (VOICE.auto && VOICE.ok && !VOICE.on) voiceStart(); // start inside the tap so the browser allows the mic
+    let r;
+    if (ctx.kind === 'online') r = await api({ action: 'buzz' });
+    else { r = E.buzz(G, i, Date.now()); if (r.ok) { G.v++; render(); } }
+    if (!r.ok) { voiceStop(); if (r.error === 'held') flash('Too slow, someone buzzed first.', 'bad'); }
   },
+  mic() { if (VOICE.on) voiceStop(); else voiceStart(); },
+  voiceauto() { VOICE.auto = !VOICE.auto; store.set('voice', VOICE.auto ? '1' : '0'); render(); },
   giveup() { for (let i = 0; i < G.n; i++) if (G.phase === 'answer') E.skip(G, i, Date.now()); G.v++; render(); },
   async next() {
     if (ctx.kind === 'online') { await api({ action: 'next' }); return; }
@@ -1860,6 +1931,14 @@ app.addEventListener('input', e => {
   else if (t.id === 'q') {
     const q = t.value.trim().toLowerCase();
     $$('#pickgrid .gbtn').forEach(b => b.classList.toggle('hide', !!q && !b.dataset.q.includes(q)));
+  }
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === ' ' || e.code === 'Space') && screen === 'game' && G && G.phase === 'answer' && G.holder === null && ctx.kind !== 'local' && !G.locked.includes(ctx.me)) {
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    e.preventDefault();
+    actions.buzz({ dataset: { i: String(ctx.me) } });
   }
 });
 app.addEventListener('keydown', e => {

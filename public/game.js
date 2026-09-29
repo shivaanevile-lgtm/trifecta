@@ -883,7 +883,6 @@ export function aiPick(s, who, now = Date.now()) {
 
 export function buzz(s, who, now = Date.now()) {
   if (s.phase !== 'answer') return err('phase');
-  if (s.mode !== 'local') return err('nobuzz');
   if (s.locked.includes(who)) return err('locked');
   if (s.holder !== null) return err('held');
   s.holder = who;
@@ -918,7 +917,7 @@ function endRound(s, winner, reason, player, now) {
 export function answer(s, who, input, now = Date.now()) {
   if (s.phase !== 'answer') return err('late');
   if (s.locked.includes(who)) return err('locked');
-  if (s.mode === 'local' && s.holder !== who) return err('nobuzz');
+  if (s.holder !== who) return err('nobuzz');
   let p = null;
   if (input && input.id) p = BY_ID[input.id] || null;
   else {
