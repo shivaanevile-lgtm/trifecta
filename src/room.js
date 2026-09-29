@@ -162,10 +162,6 @@ export async function onRequest({ request, env }) {
           const res = E.fillRandom(s, now);
           return { res, changed: res.ok };
         }
-        case 'buzz': {
-          const res = E.buzz(s, me, now);
-          return { res, changed: res.ok };
-        }
         case 'skip': {
           const res = E.skip(s, me, now);
           return { res, changed: res.ok };

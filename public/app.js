@@ -1404,7 +1404,7 @@ function renderLocalSetup() {
   <div class="seg"><button class="${F.n === 2 ? 'on' : ''}" data-act="form" data-k="n" data-v="2">2 players</button><button class="${F.n === 3 ? 'on' : ''}" data-act="form" data-k="n" data-v="3">3 players</button></div>
   ${inputs}
   ${timerSeg()}
-  <p style="margin-top:12px">Each player secretly chooses a clue on their own turn (pass the device) before the timer runs out. Then everybody races to hit the buzzer (or press space). First buzz gets to answer, by typing or by voice. A wrong answer knocks you out of the round and the others can buzz again.</p>
+  <p style="margin-top:12px">Each player secretly chooses a clue on their own turn (pass the device) before the timer runs out. Then everybody races: type the name or say it out loud. The first correct answer takes the point. A wrong answer knocks you out of the round.</p>
   <div style="margin-top:16px"><button class="btn" data-act="startLocal">Kick off</button></div></div>`;
 }
 
@@ -1556,6 +1556,7 @@ function voiceStart() {
       if (G && matches(p, G.crit)) { best = { p, t: res[k].transcript }; break; }
     }
     voiceStop();
+    if (!best) setTimeout(maybeVoice, 250);
     if (best && inp) { inp.value = best.p.name; inp.dataset.id = best.p.id; inp.dataset.name = best.p.name; submitAnswer(); }
     else { showSugg(); flash('Heard "' + res[0].transcript + '" but no match. Tap a name below, type it, or say it again.', 'bad'); }
   };
@@ -1565,9 +1566,15 @@ function voiceStart() {
     if (bad) { VOICE.ok = false; flash('Microphone blocked. Allow it in your browser to use voice.', 'bad'); render(); }
     else if (ev.error !== 'aborted') flash("Didn't catch that. Tap Say it to try again.", 'info');
   };
-  rec.onend = () => { if (VOICE.rec === rec) voiceStop(); };
+  rec.onend = () => { if (VOICE.rec === rec) { voiceStop(); setTimeout(maybeVoice, 250); } };
   try { rec.start(); } catch (e) { voiceStop(); }
   const b = $('.mic'); if (b) { b.classList.add('live'); b.textContent = '🎙 Listening… tap to stop'; }
+}
+
+function maybeVoice() {
+  const answering = screen === 'game' && G && G.phase === 'answer' && $('#ans');
+  if (!answering) { if (VOICE.on) voiceStop(); return; }
+  if (VOICE.auto && VOICE.ok && !VOICE.on) voiceStart();
 }
 
 // ---- answer ----
@@ -1582,6 +1589,7 @@ function statusPills() {
 function inputBox(label) {
   return `<div class="card">${label ? `<h3 style="margin-bottom:8px">${label}</h3>` : ''}<div class="ans"><input id="ans" class="in" autocomplete="off" autocapitalize="words" enterkeyhint="go" placeholder="Type a footballer's name…"><div id="sugg" class="sugg hide"></div></div>
   <div class="row" style="margin-top:10px"><button class="btn" data-act="submit">Answer</button>${micBtn()}<button class="btn alt" data-act="pass">Pass</button></div>
+  ${VOICE.ok ? `<button class="link" data-act="voiceauto" style="display:block;margin:8px auto 0;text-decoration:underline">Voice: ${VOICE.auto ? 'on, always listening during the answer phase' : 'off'}</button>` : ''}
   <div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div></div>`;
 }
 
@@ -1604,14 +1612,8 @@ function answerView() {
     }
   } else if (G.locked.includes(ctx.me)) {
     h += `<div class="card"><h3>You're out this round</h3><p>You named someone who does not fit, or passed. Waiting for the others…</p><div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div></div>`;
-  } else if (G.holder === null) {
-    h += `<div class="buzzers" style="grid-template-columns:1fr"><button class="buzz big" style="--c:${PCOL[ctx.me]}" data-act="buzz" data-i="${ctx.me}">BUZZ<br><small>first one in gets to answer · or press space</small></button></div>
-    ${VOICE.ok ? `<button class="link" data-act="voiceauto" style="display:block;margin:6px auto;text-decoration:underline">Voice answers: ${VOICE.auto ? 'on (mic opens when you buzz)' : 'off'}</button>` : ''}
-    <div class="msg ${ctx.mt}">${ctx.msgHtml ? ctx.msg : esc(ctx.msg)}</div>`;
-  } else if (G.holder === ctx.me) {
-    h += holderBar + inputBox('You buzzed first! Who fits all three clues?');
   } else {
-    h += holderBar + `<div class="card"><h3>${esc(nm(G.holder))} buzzed in</h3><p>They are answering. If they miss, you can buzz again.</p></div>`;
+    h += inputBox('Who fits all three clues? Type it or say it.');
   }
   return h + statusPills();
 }
@@ -1674,6 +1676,7 @@ function render() {
     $('#ans').focus();
   }
   updateTimers();
+  maybeVoice();
   if (ctx.kind === 'ai') scheduleAI();
 }
 
@@ -1716,19 +1719,11 @@ function scheduleAI() {
       planned.add(key);
       const plan = E.aiPlan(G, i, Date.now());
       if (!plan) return;
-      const think = rnd(1100, 2600);
-      const tryBuzz = () => {
+      after(plan.at - Date.now(), () => {
         if (!G || G.round !== round || G.phase !== 'answer' || G.locked.includes(i)) return;
-        if (G.holder !== null) { after(500, tryBuzz); return; }
-        E.buzz(G, i, Date.now());
+        E.answer(G, i, { id: plan.id }, Date.now());
         G.v++; render();
-        after(think, () => {
-          if (!G || G.round !== round || G.phase !== 'answer' || G.holder !== i) return;
-          E.answer(G, i, { id: plan.id }, Date.now());
-          G.v++; render();
-        });
-      };
-      after(plan.at - think - Date.now(), tryBuzz);
+      });
     });
   }
 }
@@ -1860,13 +1855,11 @@ const actions = {
     if (ctx.kind === 'online') { await api({ action: 'skip' }); return; }
     E.skip(G, ctx.kind === 'local' ? G.holder : ctx.me, Date.now()); G.v++; render();
   },
-  async buzz(el) {
+  buzz(el) {
     const i = Number(el.dataset.i);
-    if (VOICE.auto && VOICE.ok && !VOICE.on) voiceStart(); // start inside the tap so the browser allows the mic
-    let r;
-    if (ctx.kind === 'online') r = await api({ action: 'buzz' });
-    else { r = E.buzz(G, i, Date.now()); if (r.ok) { G.v++; render(); } }
-    if (!r.ok) { voiceStop(); if (r.error === 'held') flash('Too slow, someone buzzed first.', 'bad'); }
+    if (VOICE.auto && VOICE.ok && !VOICE.on) voiceStart();
+    const r = E.buzz(G, i, Date.now());
+    if (r.ok) { G.v++; render(); } else voiceStop();
   },
   mic() { if (VOICE.on) voiceStop(); else voiceStart(); },
   voiceauto() { VOICE.auto = !VOICE.auto; store.set('voice', VOICE.auto ? '1' : '0'); render(); },
@@ -1931,14 +1924,6 @@ app.addEventListener('input', e => {
   else if (t.id === 'q') {
     const q = t.value.trim().toLowerCase();
     $$('#pickgrid .gbtn').forEach(b => b.classList.toggle('hide', !!q && !b.dataset.q.includes(q)));
-  }
-});
-document.addEventListener('keydown', e => {
-  if ((e.key === ' ' || e.code === 'Space') && screen === 'game' && G && G.phase === 'answer' && G.holder === null && ctx.kind !== 'local' && !G.locked.includes(ctx.me)) {
-    const t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-    e.preventDefault();
-    actions.buzz({ dataset: { i: String(ctx.me) } });
   }
 });
 app.addEventListener('keydown', e => {
