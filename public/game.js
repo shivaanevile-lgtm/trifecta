@@ -61,6 +61,32 @@ export const CLUBS = {
   LAG: ['LA Galaxy', '#00245D', '#FFD200'], LAF: ['LAFC', '#111111', '#C39E6D'],
   MIA: ['Inter Miami', '#F7B5CD', '#231F20'], NAS: ['Al-Nassr', '#FFD500', '#0a2a6a'],
   HIL: ['Al-Hilal', '#005EB8', '#fff'], ITT: ['Al-Ittihad', '#FFD500', '#111'],
+  BOL: ['Bologna', '#1A2F48', '#fff'],
+  GIR: ['Girona', '#E41E26', '#fff'],
+  CLV: ['Celta Vigo', '#8AC3EE', '#10233f'],
+  GEN: ['Genoa', '#A6192E', '#0a2a6a'],
+  TOR: ['Torino', '#8B1A2B', '#fff'],
+  UDI: ['Udinese', '#111111', '#fff'],
+  SAS: ['Sassuolo', '#00A550', '#111'],
+  CAG: ['Cagliari', '#A6192E', '#0a2a6a'],
+  NFO: ['Nottingham Forest', '#DD0000', '#fff'],
+  BOU: ['Bournemouth', '#DA291C', '#111'],
+  STK: ['Stoke City', '#E03A3E', '#fff'],
+  SWA: ['Swansea City', '#F4F1EA', '#111'],
+  WBA: ['West Brom', '#122F67', '#fff'],
+  MID: ['Middlesbrough', '#E4002B', '#fff'],
+  NOR: ['Norwich City', '#FFF200', '#00A650'],
+  WAT: ['Watford', '#FBEE23', '#111'],
+  LEN: ['Lens', '#FFD400', '#E4002B'],
+  UNI: ['Union Berlin', '#EB1923', '#fff'],
+  M05: ['Mainz 05', '#C3141E', '#fff'],
+  AZ: ['AZ Alkmaar', '#D2122E', '#fff'],
+  GNK: ['Genk', '#0A5DA6', '#fff'],
+  BSL: ['Basel', '#D4001A', '#0a2a6a'],
+  NIC: ['Nice', '#111111', '#E4002B'],
+  OSA: ['Osasuna', '#D91A21', '#0a2a6a'],
+  ESY: ['Espanyol', '#0A5DA6', '#fff'],
+  AHL: ['Al-Ahli', '#0B7A3E', '#fff'],
 };
 
 export const FLAGS = {
@@ -73,6 +99,16 @@ export const FLAGS = {
   Nigeria: '🇳🇬', Ghana: '🇬🇭', Gabon: '🇬🇦', Guinea: '🇬🇳', Mali: '🇲🇱', Liberia: '🇱🇷',
   Colombia: '🇨🇴', Chile: '🇨🇱', Ecuador: '🇪🇨', Paraguay: '🇵🇾', Mexico: '🇲🇽', USA: '🇺🇸',
   Canada: '🇨🇦', Japan: '🇯🇵', 'South Korea': '🇰🇷', Australia: '🇦🇺',
+  Austria: '🇦🇹',
+  Serbia: '🇷🇸',
+  Hungary: '🇭🇺',
+  Greece: '🇬🇷',
+  Peru: '🇵🇪',
+  Venezuela: '🇻🇪',
+  Tunisia: '🇹🇳',
+  'DR Congo': '🇨🇩',
+  Togo: '🇹🇬',
+  Iran: '🇮🇷',
 };
 
 const RAW = `
@@ -615,6 +651,350 @@ Wataru Endo|Japan|DM|STU LIV|1
 Takehiro Tomiyasu|Japan|RB,CB|ARS|1
 Tim Cahill|Australia|AM,ST|EVE|1
 Harry Kewell|Australia|LW|LEE LIV GAL|1
+Pau Cubarsí|Spain|CB|BAR|2|Cubarsi;Pau Cubarsi
+Eric García|Spain|CB,DM|MCI BAR GIR|2|Eric Garcia
+Alejandro Balde|Spain|LB|BAR|2|Balde
+Fermín López|Spain|AM,CM|BAR|1|Fermin Lopez
+Marc Casadó|Spain|DM|BAR|1|Marc Casado
+Marc Bernal|Spain|DM|BAR|1
+Iñigo Martínez|Spain|CB|RSO ATH BAR NAS|1|Inigo Martinez
+Álex Baena|Spain|AM,LW|VIL ATM|1|Alex Baena
+Pau Torres|Spain|CB|VIL AVL|1
+Alejandro Grimaldo|Spain|LB|BEN LEV|2|Grimaldo
+Dean Huijsen|Spain|CB|JUV BOU RMA|2|Huijsen
+Ansu Fati|Spain|LW|BAR MON|1
+Marc Guiu|Spain|ST|BAR CHE|1
+Abde Ezzalzouli|Morocco|LW,RW|BAR OSA BET|1|Abde
+Sergio Canales|Spain|AM|VAL RMA BET|1
+Marcos Alonso|Spain|LB|FIO SUN CHE BAR|1
+Dani Ceballos|Spain|CM|BET RMA ARS|1
+Sergi Roberto|Spain|CM,RB|BAR|1
+Rodrigo Moreno|Spain|ST|VAL LEE|1|Rodrigo
+Marco Asensio|Spain|RW,AM|RMA PSG|2|Asensio
+Alberto Moreno|Spain|LB|SEV LIV VIL|1
+Gerard Moreno|Spain|ST|ESY VIL|1
+Borja Iglesias|Spain|ST|BET|1
+Joselu|Spain|ST|ESY STK NEW RMA|1
+Bryan Gil|Spain|LW|SEV TOT|1
+Fernando Hierro|Spain|CB,DM|RMA|1
+Luis Enrique|Spain|CM,AM|RMA BAR|1
+Guti|Spain|AM|RMA|1
+Fernando Morientes|Spain|ST|RMA MON LIV VAL|1
+Joaquín|Spain|RW|BET VAL FIO|1|Joaquin
+Gaizka Mendieta|Spain|CM|VAL LAZ BAR MID|1
+Pep Guardiola|Spain|DM|BAR ROM|1
+Roberto Soldado|Spain|ST|RMA VAL TOT VIL|1
+Nolito|Spain|RW|CLV MCI SEV VIL|1
+Álvaro Negredo|Spain|ST|SEV MCI VAL|1|Alvaro Negredo
+Rico Lewis|England|RB,CM|MCI|1
+Morgan Rogers|England|AM,LW|AVL MID|2
+Eberechi Eze|England|AM|CRY ARS|2
+Marc Guéhi|England|CB|CRY CHE|2|Marc Guehi
+Levi Colwill|England|CB|CHE BHA|1
+Noni Madueke|England|RW|PSV CHE ARS|2
+Curtis Jones|England|CM|LIV|1
+Harvey Elliott|England|RW,AM|LIV AVL|1
+Ivan Toney|England|ST|BRF AHL|2
+Dominic Solanke|England|ST|BOU TOT CHE LIV|2
+Jarrod Bowen|England|RW|WHU|2
+James Ward-Prowse|England|CM|SOU WHU NFO|1
+Callum Wilson|England|ST|BOU NEW WHU|1
+Ross Barkley|England|CM,AM|EVE CHE AVL|1
+Adam Wharton|England|CM|CRY|1
+Ezri Konsa|England|CB|BRF AVL|1
+Jarrad Branthwaite|England|CB|EVE|1
+Morgan Gibbs-White|England|AM|WOL NFO|2
+Kobbie Mainoo|England|CM|MUN|2
+Jack Wilshere|England|CM|ARS BOU|1
+Aaron Wan-Bissaka|England|RB|CRY MUN WHU|1
+Fikayo Tomori|England|CB|CHE MIL|1
+Ruben Loftus-Cheek|England|CM|CHE CRY MIL|1
+Tammy Abraham|England|ST|CHE ROM MIL BES|2
+Jesse Lingard|England|AM|MUN WHU NFO|1
+Daniel Sturridge|England|ST|CHE LIV|1
+Joe Cole|England|AM|WHU CHE LIV|1
+Bobby Charlton|England|AM,CM|MUN|2
+Bobby Moore|England|CB|WHU|1
+Gordon Banks|England|GK|LEI STK|1
+Kevin Keegan|England|ST|LIV HSV NEW|2
+Peter Shilton|England|GK|LEI STK NFO SOU|1
+Glenn Hoddle|England|AM|TOT MON|1
+Bryan Robson|England|CM|WBA MUN|1
+Gary Neville|England|RB|MUN|2
+Phil Neville|England|RB,CM|MUN EVE|1
+Steve McManaman|England|RW|LIV RMA MCI|1
+Emile Heskey|England|ST|LEI LIV AVL|1
+David James|England|GK|LIV AVL WHU MCI|1
+Ledley King|England|CB|TOT|1
+Wes Brown|England|CB|MUN SUN|1
+Owen Hargreaves|England|DM|BAY MUN MCI|1
+Scott Parker|England|CM|CHE NEW WHU TOT FUL|1
+Rickie Lambert|England|ST|LIV SOU|1
+Jermaine Jenas|England|CM|NEW TOT|1
+Joey Barton|England|CM|MCI NEW OM|1
+Micah Richards|England|CB|MCI AVL FIO|1
+Stewart Downing|England|LW|MID AVL LIV WHU|1
+Gabriel Agbonlahor|England|ST|AVL|1
+Chris Sutton|England|ST|NOR BLB CHE CEL|1
+Matt Le Tissier|England|AM|SOU|1
+Les Ferdinand|England|ST|NEW TOT|1
+Rayan Cherki|France|AM|OL MCI|2
+Désiré Doué|France|RW,AM|REN PSG|2|Desire Doue
+Warren Zaïre-Emery|France|CM|PSG|1|Warren Zaire-Emery
+Jean-Philippe Mateta|France|ST|OL M05 CRY|1
+Christopher Nkunku|France|AM,ST|PSG RBL CHE MIL|2
+Jules Koundé|France|RB,CB|SEV CHE BAR|2|Jules Kounde
+Malo Gusto|France|RB|OL CHE|1
+Lucas Digne|France|LB|PSG ROM BAR EVE AVL|1
+Ferland Mendy|France|LB|OL RMA|1
+Moussa Diaby|France|RW|PSG LEV AVL ITT|1
+Alexandre Lacazette|France|ST|OL ARS|2
+Anthony Martial|France|ST,LW|MON MUN SEV|1
+Presnel Kimpembe|France|CB|PSG|1
+Mattéo Guendouzi|France|CM,DM|ARS OM LAZ|1|Matteo Guendouzi
+Youssouf Fofana|France|CM|MON MIL|1
+Manu Koné|France|CM|GLA ROM|1|Manu Kone
+Wissam Ben Yedder|France|ST|SEV MON|1
+Florian Thauvin|France|RW|OM NEW VAL|1
+Hatem Ben Arfa|France|AM|OL OM NEW|1
+Mathys Tel|France|ST|BAY TOT|1
+Pascal Groß|Germany|CM|BHA BVB|1|Pascal Gross
+Nico Schlotterbeck|Germany|CB|BVB|1
+Jonathan Tah|Germany|CB|LEV BAY|1
+Deniz Undav|Germany|ST|BHA STU|1
+Leon Goretzka|Germany|CM|SCH BAY|2
+Karim Adeyemi|Germany|LW,RW|RBS BVB|1
+Niklas Süle|Germany|CB|HOF BAY BVB|1|Niklas Sule
+Benedikt Höwedes|Germany|CB|SCH JUV|1|Benedikt Howedes
+André Schürrle|Germany|LW|LEV CHE WOB BVB|1|Andre Schurrle
+Mario Gómez|Germany|ST|STU BAY FIO BES WOB|2|Mario Gomez
+Sami Khedira|Germany|CM|STU RMA JUV|2
+Per Mertesacker|Germany|CB|BRE ARS|1
+Julian Brandt|Germany|AM|LEV BVB|1
+Riccardo Calafiori|Italy|CB,LB|BOL ARS|2
+Gianluca Scamacca|Italy|ST|SAS WHU ATA|1
+Mateo Retegui|Italy|ST|BOC GEN ATA|1
+Federico Gatti|Italy|CB|JUV|1
+Moise Kean|Italy|ST|JUV EVE PSG FIO|1
+Destiny Udogie|Italy|LB|UDI TOT|1
+Alessandro Florenzi|Italy|RB|ROM PSG MIL|1
+Leonardo Spinazzola|Italy|LB|JUV ROM NAP|1
+Domenico Berardi|Italy|RW|SAS|1
+Matteo Politano|Italy|RW|INT NAP|1
+Stephan El Shaarawy|Italy|LW|GEN MIL ROM|1
+Andrea Belotti|Italy|ST|TOR ROM FIO|1
+Emerson Palmieri|Italy|LB|ROM CHE OL|1|Emerson
+Lorenzo Pellegrini|Italy|CM,AM|ROM|1
+Federico Bernardeschi|Italy|RW|FIO JUV|1
+Marco Materazzi|Italy|CB|INT|1
+Gianluca Zambrotta|Italy|RB,LB|JUV BAR MIL|1
+Gonçalo Inácio|Portugal|CB|SCP|1|Goncalo Inacio
+António Silva|Portugal|CB|BEN|1|Antonio Silva
+Francisco Conceição|Portugal|RW|POR JUV|1|Francisco Conceicao
+Otávio|Portugal|AM,RW|POR NAS|1|Otavio
+André Silva|Portugal|ST|POR MIL RBL SEV|1|Andre Silva
+Eusébio|Portugal|ST|BEN|2|Eusebio
+Brian Brobbey|Netherlands|ST|AJX|1
+Joshua Zirkzee|Netherlands|ST|BAY BOL MUN|1
+Steven Bergwijn|Netherlands|LW|PSV TOT AJX|1
+Jeremie Frimpong|Netherlands|RB,RW|CEL LEV LIV|2
+Micky van de Ven|Netherlands|CB|WOB TOT|1
+Stefan de Vrij|Netherlands|CB|FEY LAZ INT|1
+Teun Koopmeiners|Netherlands|CM|AZ ATA JUV|1
+Donyell Malen|Netherlands|ST,RW|PSV ARS BVB AVL|1
+Luuk de Jong|Netherlands|ST|PSV BAR|1
+Klaas-Jan Huntelaar|Netherlands|ST|AJX RMA MIL SCH|1
+Divock Origi|Belgium|ST|LIV MIL NFO|1
+Thorgan Hazard|Belgium|LW|CHE GLA BVB|1
+Leander Dendoncker|Belgium|DM|WOL AVL|1
+Radja Nainggolan|Belgium|CM|ROM INT CAG|1
+Ante Rebić|Croatia|LW|FRA MIL|1|Ante Rebic
+Josip Stanišić|Croatia|RB|BAY LEV|1|Josip Stanisic
+Nikola Vlašić|Croatia|AM|EVE WHU TOR|1|Nikola Vlasic
+Dušan Vlahović|Serbia|ST|FIO JUV|2|Dusan Vlahovic
+Aleksandar Mitrović|Serbia|ST|NEW FUL HIL|2|Aleksandar Mitrovic
+Nemanja Vidić|Serbia|CB|MUN INT|2|Nemanja Vidic
+Sergej Milinković-Savić|Serbia|CM|LAZ HIL|2|Sergej Milinkovic-Savic
+Nikola Milenković|Serbia|CB|FIO NFO|1|Nikola Milenkovic
+Dušan Tadić|Serbia|AM|AJX SOU FEN|1|Dusan Tadic
+Branislav Ivanović|Serbia|RB|CHE ZEN|1|Branislav Ivanovic
+Nemanja Matić|Serbia|DM|BEN CHE MUN ROM|1|Nemanja Matic
+Luka Jović|Serbia|ST|RMA FIO MIL FRA|1|Luka Jovic
+Adem Ljajić|Serbia|AM|FIO ROM INT FEN TOR|1|Adem Ljajic
+Filip Kostić|Serbia|LW|FRA JUV|1|Filip Kostic
+Dejan Stanković|Serbia|CM|INT LAZ|1|Dejan Stankovic
+Predrag Mijatović|Serbia|ST|RMA VAL FIO|1|Predrag Mijatovic
+David Alaba|Austria|CB,LB|BAY RMA|2
+Marcel Sabitzer|Austria|CM|RBL BAY MUN BVB|1
+Marko Arnautović|Austria|ST|INT BOL|1|Marko Arnautovic
+Konrad Laimer|Austria|CM|RBL BAY|1
+Kevin Danso|Austria|CB|LEN SOU TOT|1
+Dominik Szoboszlai|Hungary|CM,AM|RBS RBL LIV|2
+Péter Gulácsi|Hungary|GK|RBL|1|Peter Gulacsi
+Kostas Manolas|Greece|CB|ROM NAP|1
+Andreas Christensen|Denmark|CB|CHE BAR|1
+Joakim Mæhle|Denmark|LB|ATA WOL|1|Joakim Maehle
+Thomas Delaney|Denmark|CM|BVB|1
+Mikkel Damsgaard|Denmark|AM|BRF|1
+Jon Dahl Tomasson|Denmark|ST|FEY NEW MIL|1
+Anthony Elanga|Sweden|RW|MUN NFO NEW|1
+Sander Berge|Norway|CM|GNK FUL|1
+Alexander Sørloth|Norway|ST|CRY RBL RSO VIL ATM|1|Alexander Sorloth
+Joshua King|Norway|ST|MUN BLB BOU|1
+Jakub Kiwior|Poland|CB|ARS|1
+Matty Cash|Poland|RB|NFO AVL|1
+Sebastian Szymański|Poland|AM|FEN|1|Sebastian Szymanski
+Krzysztof Piątek|Poland|ST|MIL|1|Krzysztof Piatek
+Jan Bednarek|Poland|CB|SOU|1
+Łukasz Fabiański|Poland|GK|ARS WHU|1|Lukasz Fabianski
+Jerzy Dudek|Poland|GK|LIV RMA|1
+Vitaliy Mykolenko|Ukraine|LB|EVE|1
+Georgiy Sudakov|Ukraine|AM|SHA BEN|1
+Andriy Lunin|Ukraine|GK|RMA|1
+Ruslan Malinovskyi|Ukraine|CM|ATA GEN|1
+Andriy Yarmolenko|Ukraine|LW|WHU|1
+Fabian Schär|Switzerland|CB|NEW|1|Fabian Schar
+Remo Freuler|Switzerland|CM|ATA NFO BOL|1
+Dan Ndoye|Switzerland|LW|BSL BOL NFO|1
+Gregor Kobel|Switzerland|GK|BVB|1
+Orkun Kökçü|Turkey|CM|FEY BEN|1|Orkun Kokcu
+Zeki Çelik|Turkey|RB|ROM|1|Zeki Celik
+Burak Yılmaz|Turkey|ST|LIL BES|1|Burak Yilmaz
+Cengiz Ünder|Turkey|RW|ROM OM FEN|1|Cengiz Under
+Ryan Christie|Scotland|AM|CEL BOU|1
+Che Adams|Scotland|ST|SOU TOR|1
+Aaron Hickey|Scotland|RB|BOL BRF|1
+James Forrest|Scotland|RW|CEL|1
+Craig Gordon|Scotland|GK|CEL|1
+Darren Fletcher|Scotland|CM|MUN WBA|1
+Denis Law|Scotland|ST|MCI TOR MUN|2
+Daniel James|Wales|RW|MUN LEE FUL|1
+Brennan Johnson|Wales|RW|NFO TOT CRY|1
+Ethan Ampadu|Wales|CM,CB|CHE LEE|1
+Harry Wilson|Wales|RW|LIV FUL|1
+Kieffer Moore|Wales|ST|WOL BOU|1
+Joe Allen|Wales|CM|LIV SWA STK|1
+Ben Davies|Wales|LB|SWA TOT|1
+Wayne Hennessey|Wales|GK|WOL CRY|1
+Mark Hughes|Wales|ST|MUN BAR BAY CHE|1
+Evan Ferguson|Ireland|ST|BHA|1
+Caoimhín Kelleher|Ireland|GK|LIV BRF|1|Caoimhin Kelleher
+Séamus Coleman|Ireland|RB|EVE|1|Seamus Coleman
+Shane Long|Ireland|ST|SOU|1
+Damien Duff|Ireland|LW|BLB CHE NEW FUL|1
+John O'Shea|Ireland|CB|MUN SUN|1
+Liam Brady|Ireland|AM|ARS JUV SAM INT|1
+Amad Diallo|Ivory Coast|RW|ATA MUN|1|Amad
+Wilfried Bony|Ivory Coast|ST|SWA MCI|1
+Gervinho|Ivory Coast|LW|LIL ARS ROM|1
+Iñaki Williams|Ghana|ST,RW|ATH|1|Inaki Williams
+Jordan Ayew|Ghana|LW,ST|CRY LEI|1
+André Ayew|Ghana|LW|OM SWA WHU|1|Andre Ayew
+Cheikhou Kouyaté|Senegal|CM|WHU CRY|1|Cheikhou Kouyate
+Pape Matar Sarr|Senegal|CM|TOT|1
+Abdoulaye Doucouré|Mali|CM|EVE|1|Abdoulaye Doucoure
+Mohamed Elneny|Egypt|CM|BSL ARS|1
+Omar Marmoush|Egypt|ST,LW|WOB FRA MCI|2
+Wahbi Khazri|Tunisia|AM|SAI SUN REN|1
+Youcef Atal|Algeria|RB|NIC|1
+Ismaël Bennacer|Algeria|CM|MIL|1|Ismael Bennacer
+Saïd Benrahma|Algeria|LW|WHU OL|1|Said Benrahma
+Noussair Mazraoui|Morocco|RB|AJX BAY MUN|1
+Brahim Díaz|Morocco|AM|MCI RMA MIL|2|Brahim Diaz
+Nayef Aguerd|Morocco|CB|WHU|1
+Eric Maxim Choupo-Moting|Cameroon|ST|BAY PSG MUN|1|Choupo-Moting
+André Onana|Cameroon|GK|AJX INT MUN|2|Andre Onana
+Joël Matip|Cameroon|CB|SCH LIV|1|Joel Matip
+Alex Song|Cameroon|DM|ARS BAR|1
+Victor Boniface|Nigeria|ST|LEV|1
+Alex Iwobi|Nigeria|LW,AM|ARS EVE FUL|1
+Kelechi Iheanacho|Nigeria|ST|MCI LEI|1
+Taiwo Awoniyi|Nigeria|ST|LIV UNI NFO|1
+Calvin Bassey|Nigeria|LB,CB|RAN AJX FUL|1
+John Obi Mikel|Nigeria|DM|CHE|1|Mikel Obi
+Emmanuel Adebayor|Togo|ST|MON ARS MCI RMA TOT|1
+Chancel Mbemba|DR Congo|CB|OM|1
+Yoane Wissa|DR Congo|ST|BRF NEW|1
+Serhou Guirassy|Guinea|ST|STU BVB|1
+Antony|Brazil|RW|SAO AJX MUN BET|2
+Savinho|Brazil|RW|GIR MCI|1
+Estêvão|Brazil|RW|PLM CHE|1|Estevao
+João Pedro|Brazil|ST|WAT BHA CHE|1|Joao Pedro
+Matheus Cunha|Brazil|ST,AM|RBL ATM WOL MUN|2
+Joelinton|Brazil|CM|NEW|1
+Douglas Luiz|Brazil|CM|AVL JUV NFO|1
+Andreas Pereira|Brazil|AM|MUN FUL|1
+Emerson Royal|Brazil|RB|BAR TOT MIL|1
+Bremer|Brazil|CB|TOR JUV|1|Gleison Bremer
+João Gomes|Brazil|CM|FLA WOL|1|Joao Gomes
+Gerson|Brazil|CM|ROM OM FLA|1
+Alexandre Pato|Brazil|ST|MIL COR CHE|1|Pato
+Luís Fabiano|Brazil|ST|POR SEV SAO|1|Luis Fabiano
+Lucas Leiva|Brazil|DM,CM|GRE LIV LAZ|1
+Diego|Brazil|AM|SAN POR BRE JUV WOB ATM FEN FLA|1|Diego Ribas
+Gilberto Silva|Brazil|DM|ARS|1
+Júlio César|Brazil|GK|FLA INT|1|Julio Cesar
+Lúcio|Brazil|CB|BAY INT JUV|1|Lucio
+Maicon|Brazil|RB|INT MCI ROM|1
+Malcom|Brazil|RW|COR BAR ZEN|1
+Thiago Almada|Argentina|AM|ATA OL|1
+Nicolás González|Argentina|LW|STU FIO JUV ATM|1|Nico Gonzalez;Nicolas Gonzalez
+Valentín Carboni|Argentina|AM|INT OM|1|Valentin Carboni
+Giovanni Simeone|Argentina|ST|GEN FIO CAG NAP TOR|1
+Matías Soulé|Argentina|AM|JUV ROM|1|Matias Soule
+Roberto Pereyra|Argentina|CM|JUV UDI WAT|1
+Éver Banega|Argentina|AM|SEV INT VAL|1|Ever Banega
+Gonzalo Montiel|Argentina|RB|SEV|1
+Lucas Ocampos|Argentina|LW|MON OM SEV|1
+Walter Samuel|Argentina|CB|ROM RMA INT|1
+Esteban Cambiasso|Argentina|CM,DM|RMA INT LEI|1
+Juan Sebastián Verón|Argentina|CM|LAZ MUN CHE INT PAR|1|Juan Sebastian Veron
+Gabriel Heinze|Argentina|LB|PSG MUN RMA OM|1
+Manuel Ugarte|Uruguay|DM|SCP PSG MUN|1
+Facundo Pellistri|Uruguay|RW|MUN|1
+Álvaro Recoba|Uruguay|AM|INT PAR|1|Alvaro Recoba
+Jhon Durán|Colombia|ST|AVL|1|Jhon Duran
+Jefferson Lerma|Colombia|CM|CRY|1
+Carlos Bacca|Colombia|ST|SEV MIL VIL|1
+Duván Zapata|Colombia|ST|UDI NAP ATA TOR|1|Duvan Zapata
+David Ospina|Colombia|GK|ARS NAP|1
+Jackson Martínez|Colombia|ST|POR ATM|1|Jackson Martinez
+Faustino Asprilla|Colombia|ST|PAR NEW|1
+Marcelo Salas|Chile|ST|RIV LAZ JUV|1
+Ben Brereton Díaz|Chile|ST|BLB VIL|1|Ben Brereton Diaz
+Gary Medel|Chile|CB|SEV INT BES BOL|1
+Paolo Guerrero|Peru|ST|BAY HSV COR FLA|1
+Claudio Pizarro|Peru|ST|BRE BAY CHE|1
+André Carrillo|Peru|RW|SCP BEN|1|Andre Carrillo
+Salomón Rondón|Venezuela|ST|MAL ZEN WBA NEW EVE|1|Salomon Rondon
+Miguel Almirón|Paraguay|AM|NEW|1|Miguel Almiron
+Julio Enciso|Paraguay|AM|BHA|1
+Kendry Páez|Ecuador|AM|CHE|1|Kendry Paez
+Willian Pacho|Ecuador|CB|PSG|1|William Pacho
+Antonio Valencia|Ecuador|RW,RB|MUN|1
+Héctor Herrera|Mexico|CM|POR ATM|1|Hector Herrera
+Andrés Guardado|Mexico|LW,CM|VAL BET|1|Andres Guardado
+Carlos Vela|Mexico|LW,ST|ARS RSO LAF|1
+Giovani dos Santos|Mexico|AM|BAR TOT|1
+Sergiño Dest|USA|RB|AJX BAR MIL PSV|1|Sergino Dest
+Ricardo Pepi|USA|ST|PSV|1
+Folarin Balogun|USA|ST|ARS MON|1
+Yunus Musah|USA|CM|VAL MIL|1
+Brenden Aaronson|USA|AM|LEE UNI|1
+Antonee Robinson|USA|LB|FUL|1
+Brad Friedel|USA|GK|BLB AVL TOT LIV|1
+Tajon Buchanan|Canada|RW|INT|1
+Stephen Eustáquio|Canada|CM|POR|1|Stephen Eustaquio
+Ritsu Doan|Japan|RW|FRA|1
+Daichi Kamada|Japan|AM|FRA CRY LAZ|1
+Hwang Hee-chan|South Korea|LW,ST|RBS WOL|1
+Ki Sung-yueng|South Korea|CM|CEL SWA NEW|1
+Mile Jedinak|Australia|DM|CRY|1
+Mark Viduka|Australia|ST|CEL LEE MID|1
+Mark Schwarzer|Australia|GK|MID FUL|1
+Harry Souttar|Australia|CB|LEI STK|1
+Mehdi Taremi|Iran|ST|POR INT|1
+Sardar Azmoun|Iran|ST|LEV ROM|1
 `;
 
 function parse() {
