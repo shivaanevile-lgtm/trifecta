@@ -1,5 +1,5 @@
-// Online rooms for Trifecta. Cloudflare Pages Function backed by D1 (binding name: DB).
-import * as E from '../../game.js';
+// Online rooms for Trifecta. Cloudflare Worker handler backed by D1 (binding name: DB).
+import * as E from '../public/game.js';
 
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ';
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
