@@ -1,4 +1,4 @@
-// Trifecta shared code: the footballer database and the game rules.
+// Trifecta shared a  code: the footballer database and the game rules.
 // Used by the browser (app.js) and by the online-rooms function (functions/api/room.js).
 
 // ======== PART 1: PLAYER DATABASE ========
