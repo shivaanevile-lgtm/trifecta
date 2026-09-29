@@ -3,7 +3,7 @@
 
 // ======== PART 1: PLAYER DATABASE ========
 // Trifecta player database.
-// One line per player:  Name | Nation | Positions | Clubs (codes) | Fame (1-3, blank = 2) | Aliases (; separated)
+// One line per player:  a Name | Nation | Positions | Clubs (codes) | Fame (1-3, blank = 2) | Aliases (; separated)
 // Positions: GK CB LB RB DM CM AM LW RW ST   ("W" = LW+RW)
 // Fame only matters for how well the computer opponents "know" a player.
 // To add players just add lines. Club codes must exist in CLUBS below.
