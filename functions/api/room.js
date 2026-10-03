@@ -22,6 +22,8 @@ function viewFor(s, idx, now) {
   const v = JSON.parse(JSON.stringify(s));
   delete v._t;
   if (v.phase === 'pick') {
+    v.valid = {};
+    for (const k of E.ALL_SLOTS) if (s.claims[k] === undefined || s.claims[k] === idx) v.valid[k] = E.validValues(s, idx, k);
     for (const k of Object.keys(v.crit)) {
       if (v.claims[k] !== idx) v.crit[k] = true; // other players' choices stay hidden until everyone has chosen
     }
@@ -144,6 +146,10 @@ export async function onRequest({ request, env }) {
           if (s.phase !== 'lobby' || me === 0) return { res: { ok: true }, changed: false };
           s.players[me].name = null; s._t[me] = null;
           return { res: { ok: true }, changed: true };
+        }
+        case 'claim': {
+          const res = E.claim(s, me, body.slot);
+          return { res, changed: res.ok };
         }
         case 'pick': {
           const res = E.pick(s, me, body.slot, body.value, now);

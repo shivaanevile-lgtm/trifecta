@@ -1166,7 +1166,32 @@ function nextRound(s, now) {
 const POOLS = { club: () => Object.keys(CLUBS), country: () => NATIONS, pos: () => POSITIONS };
 
 // Everyone picks at the same time (except pass-and-play, where players go one after another).
-// Each player claims one category (club, country or position) and names a value for it.
+// Each player claims one category (club, country or position) the moment they tap it, so the first
+// to tap a category owns it. Then they name a value for it.
+
+// Values for a category that still leave at least one possible footballer, given the other players' choices.
+// Pass-and-play keeps earlier players' picks secret, so there it only checks that somebody fits the value.
+export function validValues(s, who, slot) {
+  const others = {};
+  if (s.mode !== 'local') for (const k of ALL_SLOTS) if (k !== slot && s.claims[k] !== undefined && s.claims[k] !== who && s.crit[k]) others[k] = s.crit[k];
+  return POOLS[slot]().filter(v => findMatches({ ...others, [slot]: v }, s.used).length > 0);
+}
+
+function release(s, who) {
+  for (const k of ALL_SLOTS) if (s.claims[k] === who) { delete s.claims[k]; delete s.crit[k]; }
+}
+
+export function claim(s, who, slot) {
+  if (s.phase !== 'pick') return err('phase');
+  if (!ALL_SLOTS.includes(slot)) return err('slot');
+  if (s.mode === 'local') return ok();
+  if (s.claims[slot] !== undefined && s.claims[slot] !== who) return err('taken');
+  if (s.claims[slot] === who) return ok();
+  release(s, who);
+  s.claims[slot] = who;
+  return ok();
+}
+
 export function pick(s, who, slot, value, now = Date.now()) {
   if (s.phase !== 'pick') return err('phase');
   if (!ALL_SLOTS.includes(slot)) return err('slot');
@@ -1178,7 +1203,7 @@ export function pick(s, who, slot, value, now = Date.now()) {
   if (s.claims[slot] !== undefined && s.claims[slot] !== who) return err('taken');
   const oldClaims = { ...s.claims };
   const oldCrit = { ...s.crit };
-  for (const k of ALL_SLOTS) if (s.claims[k] === who) { delete s.claims[k]; delete s.crit[k]; }
+  release(s, who);
   s.claims[slot] = who;
   s.crit[slot] = value;
   if (findMatches(s.crit, s.used).length === 0) {
@@ -1204,7 +1229,7 @@ function afterPick(s, now) {
     s.pickTimedOut = false;
     s.pickDeadline = 0;
     if (s.turn >= s.n) startAnswer(s, now);
-  } else if (Object.keys(s.claims).length >= s.n) {
+  } else if (Object.keys(s.crit).length >= s.n) {
     startAnswer(s, now);
   }
 }
@@ -1227,23 +1252,26 @@ export function redoPick(s, who, now = Date.now()) {
 // After time is up, anyone can choose to give the missing clue(s) a random pick instead of restarting.
 export function fillRandom(s, now = Date.now()) {
   if (s.phase !== 'pick' || !s.pickTimedOut) return err('phase');
-  const claimed = i => Object.values(s.claims).includes(i);
+  const has = i => ALL_SLOTS.some(k => s.claims[k] === i && s.crit[k] !== undefined);
   if (s.mode === 'local') {
-    if (!claimed(s.turn)) fillOne(s, s.turn);
+    if (!has(s.turn)) fillOne(s, s.turn);
     afterPick(s, now);
   } else {
-    const missing = Array.from({ length: s.n }, (_, i) => i).filter(i => !claimed(i)).sort(() => Math.random() - 0.5);
+    const missing = Array.from({ length: s.n }, (_, i) => i).filter(i => !has(i)).sort(() => Math.random() - 0.5);
     for (const i of missing) fillOne(s, i);
     startAnswer(s, now);
   }
   return ok();
 }
 
-// Someone ran out of time: give them a random unclaimed category with a value that keeps the round playable.
+// Someone ran out of time: give them their claimed category (or a random free one) with a value that keeps the round playable.
 function fillOne(s, who) {
-  const free = ALL_SLOTS.filter(k => s.claims[k] === undefined);
-  if (!free.length) return;
-  const slot = choice(free);
+  let slot = ALL_SLOTS.find(k => s.claims[k] === who);
+  if (!slot) {
+    const free = ALL_SLOTS.filter(k => s.claims[k] === undefined);
+    if (!free.length) return;
+    slot = choice(free);
+  }
   const value = aiChoose(s, slot);
   s.claims[slot] = who;
   s.crit[slot] = value;

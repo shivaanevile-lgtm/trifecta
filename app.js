@@ -1311,6 +1311,7 @@ function badge(code, small) {
 function tile(slot, v, by, big) {
   const head = `<small>${LABEL[slot]}</small>`;
   if (!v) return `<div class="tile empty">${head}<div class="q">?</div><div class="by">Open</div></div>`;
+  if (v === 'wait') return `<div class="tile empty">${head}<div class="q">…</div><div class="by">${esc(by)} is choosing</div></div>`;
   if (v === true) return `<div class="tile">${head}<div class="val">🔒 Chosen</div><div class="by">by ${esc(by)}</div></div>`;
   if (slot === 'club') return `<div class="tile ${big ? 'big' : ''}">${head}${badge(v)}<div class="val">${esc(clubName(v))}</div></div>`;
   if (slot === 'country') return `<div class="tile ${big ? 'big' : ''}">${head}<div class="flag">${FLAGS[v] || '🏳️'}</div><div class="val">${esc(v)}</div></div>`;
@@ -1319,12 +1320,13 @@ function tile(slot, v, by, big) {
 
 // Football pitch, attacking upwards. Interactive on the pick screen, a small marker in the clue tile.
 const PITCH = { GK: [50, 119], LB: [15, 94], CB: [50, 98], RB: [85, 94], DM: [50, 77], CM: [50, 58], AM: [50, 41], LW: [15, 30], RW: [85, 30], ST: [50, 14] };
-function pitchSVG(sel, interactive) {
+function pitchSVG(sel, interactive, okSet) {
   const stripes = Array.from({ length: 8 }, (_, i) => `<rect class="${i % 2 ? 'g2' : 'g1'}" x="0" y="${i * 16.25}" width="100" height="16.25"/>`).join('');
   const lines = '<rect class="ln" x="4" y="4" width="92" height="122"/><line class="ln" x1="4" y1="65" x2="96" y2="65"/><circle class="ln" cx="50" cy="65" r="10"/><rect class="ln" x="26" y="4" width="48" height="19"/><rect class="ln" x="38" y="4" width="24" height="8"/><rect class="ln" x="26" y="107" width="48" height="19"/><rect class="ln" x="38" y="118" width="24" height="8"/>';
   const spots = POSITIONS.map(k => {
     const [x, y] = PITCH[k];
     const on = sel === k;
+    if (interactive && okSet && !okSet.has(k)) return `<g class="spot off" aria-disabled="true"><title>${esc(POS_NAMES[k])} (no player fits)</title><circle cx="${x}" cy="${y}" r="7.5"/><text x="${x}" y="${y}">${k}</text></g>`;
     if (interactive) return `<g class="spot ${on ? 'on' : ''}" data-act="pick" data-slot="pos" data-val="${k}" role="button" tabindex="0" aria-label="${esc(POS_NAMES[k])}"><title>${esc(POS_NAMES[k])}</title><circle cx="${x}" cy="${y}" r="7.5"/><text x="${x}" y="${y}">${k}</text></g>`;
     if (on) return `<g class="spot on"><circle cx="${x}" cy="${y}" r="8"/><text x="${x}" y="${y}">${k}</text></g>`;
     return `<g class="spot dim"><circle cx="${x}" cy="${y}" r="4"/></g>`;
@@ -1339,6 +1341,7 @@ function tiles(big) {
     let v = G.crit[k];
     if (picking) {
       if (owner === undefined) v = null;
+      else if (v === undefined) v = 'wait'; // claimed, value not chosen yet
       else if (ctx.kind === 'local' || owner !== ctx.me) v = true; // other players' choices stay hidden
     }
     return tile(k, v, owner === undefined ? '' : nm(owner), big);
@@ -1463,14 +1466,15 @@ function renderGame() {
 const CAT_HINT = { club: 'I will name a club', country: 'I will name a country', pos: 'I will pick a position' };
 
 function pickerUI(slot) {
+  const okSet = okValues(slot);
   let items = '';
   if (slot === 'club') {
-    items = Object.keys(CLUBS).sort((a, b) => clubName(a).localeCompare(clubName(b))).map(c =>
+    items = Object.keys(CLUBS).filter(c => okSet.has(c)).sort((a, b) => clubName(a).localeCompare(clubName(b))).map(c =>
       `<button class="gbtn" data-act="pick" data-slot="club" data-val="${c}" data-q="${esc((clubName(c) + ' ' + c).toLowerCase())}">${badge(c, true)}<span>${esc(clubName(c))}</span></button>`).join('');
   } else if (slot === 'country') {
-    items = NATIONS.map(n => `<button class="gbtn" data-act="pick" data-slot="country" data-val="${esc(n)}" data-q="${esc(n.toLowerCase())}"><span class="flag">${FLAGS[n] || '🏳️'}</span><span>${esc(n)}</span></button>`).join('');
+    items = NATIONS.filter(n => okSet.has(n)).map(n => `<button class="gbtn" data-act="pick" data-slot="country" data-val="${esc(n)}" data-q="${esc(n.toLowerCase())}"><span class="flag">${FLAGS[n] || '🏳️'}</span><span>${esc(n)}</span></button>`).join('');
   } else {
-    return `${pitchSVG(null, true)}<div class="pitchcap">Tap the spot on the pitch.<br>DM defensive mid · CM central mid · AM attacking mid</div>
+    return `${pitchSVG(null, true, okSet)}<div class="pitchcap">Tap the spot on the pitch.<br>DM defensive mid · CM central mid · AM attacking mid</div>
   <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="pos">🎲 Surprise me</button></div>`;
   }
   const search = slot === 'pos' ? '' : `<input class="in" id="q" placeholder="Search ${slot === 'club' ? 'clubs' : 'countries'}…" autocomplete="off" style="margin-bottom:10px">`;
@@ -1483,7 +1487,13 @@ function pickTimer() {
   return `<div class="bar"><i data-until="${G.pickTimedOut ? 0 : G.pickDeadline}" data-total="${G.pickMs}"></i></div>`;
 }
 
-function hasChosen(i) { return E.ALL_SLOTS.some(k => G.claims[k] === i); }
+function hasChosen(i) { return E.ALL_SLOTS.some(k => G.claims[k] === i && G.crit[k] !== undefined); }
+
+// Values that still leave at least one possible footballer (online: sent by the server).
+function okValues(slot) {
+  if (ctx.kind === 'online') return new Set((G.valid && G.valid[slot]) || []);
+  return new Set(E.validValues(G, ctx.kind === 'local' ? G.turn : ctx.me, slot));
+}
 
 function pickStatus() {
   return `<div class="status">${G.players.map((p, i) => hasChosen(i) ? `<span class="pill think">${esc(nm(i))} · chosen</span>` : `<span class="pill">${esc(nm(i))} · choosing…</span>`).join('')}</div>`;
@@ -1513,12 +1523,13 @@ function pickView() {
   let h = pickTimer() + tiles(false);
   if (G.pickTimedOut) h += timeUpCard();
   const mine = E.ALL_SLOTS.find(k => G.claims[k] === who);
-  const cat = ctx.cat;
+  const mineDone = mine && G.crit[mine] !== undefined;
+  const cat = ctx.cat || (mine && !mineDone ? mine : null);
   const lead = local ? esc(nm(who)) + ', c' : 'C';
   let body;
   if (cat && cat !== 'choose' && !(G.claims[cat] !== undefined && G.claims[cat] !== who)) {
     body = `<div class="row" style="margin-bottom:10px"><h3 style="flex:2">${lead}hoose the ${LABEL[cat].toLowerCase()}</h3><button class="btn alt sm" data-act="chooseCat" data-slot="choose">Change clue</button></div>${pickerUI(cat)}`;
-  } else if (mine && cat !== 'choose') {
+  } else if (mineDone && cat !== 'choose') {
     body = `<h3>Locked in ✓</h3><p style="margin:4px 0 12px">Your ${LABEL[mine].toLowerCase()} stays hidden until everyone has chosen.</p><button class="btn alt sm" data-act="chooseCat" data-slot="choose">Change my pick</button>`;
   } else {
     body = `<h3 style="margin-bottom:4px">${local ? esc(nm(who)) + ', which' : 'Which'} clue will you say?</h3><p style="margin-bottom:12px">Everyone chooses at the same time, and each clue can only be taken once.</p>${catChooser(who)}`;
@@ -1828,7 +1839,18 @@ const actions = {
     startGameLocal('local', players, { kind: 'local', players });
   },
   ack() { E.startTurn(G, G.turn, Date.now()); G.v++; render(); },
-  chooseCat(el) { ctx.cat = el.dataset.slot || 'choose'; ctx.msg = ''; render(); },
+  async chooseCat(el) {
+    const slot = el.dataset.slot || 'choose';
+    ctx.msg = '';
+    if (slot === 'choose') { ctx.cat = 'choose'; render(); return; }
+    // the first player to tap a category owns it straight away
+    let r;
+    if (ctx.kind === 'online') r = await api({ action: 'claim', slot });
+    else { r = E.claim(G, ctx.kind === 'local' ? G.turn : ctx.me, slot); if (r.ok) G.v++; }
+    if (r.ok) { ctx.cat = slot; render(); return; }
+    ctx.cat = 'choose'; render();
+    if (r.error === 'taken') flash('Too slow, someone just took that category. Pick another.', 'bad');
+  },
   async redo() {
     if (ctx.kind === 'online') { await api({ action: 'redo' }); return; }
     if (E.redoPick(G, ctx.me, Date.now()).ok) { G.v++; render(); }
@@ -1840,7 +1862,8 @@ const actions = {
   pick(el) { doPick(el.dataset.slot, el.dataset.val); },
   pickrandom(el) {
     const slot = el.dataset.slot;
-    const pool = slot === 'club' ? Object.keys(CLUBS) : slot === 'country' ? NATIONS : POSITIONS;
+    const pool = [...okValues(slot)];
+    if (!pool.length) { flash('No clue fits there.', 'bad'); return; }
     doPick(slot, pool[Math.floor(Math.random() * pool.length)]);
   },
   submit() { submitAnswer(); },
