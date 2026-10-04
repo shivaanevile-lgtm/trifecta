@@ -1310,12 +1310,12 @@ function badge(code, small) {
 }
 function tile(slot, v, by, big) {
   const head = `<small>${LABEL[slot]}</small>`;
-  if (!v) return `<div class="tile empty">${head}<div class="q">?</div><div class="by">Open</div></div>`;
-  if (v === 'wait') return `<div class="tile empty">${head}<div class="q">…</div><div class="by">${esc(by)} is choosing</div></div>`;
-  if (v === true) return `<div class="tile">${head}<div class="val">🔒 Chosen</div><div class="by">by ${esc(by)}</div></div>`;
-  if (slot === 'club') return `<div class="tile ${big ? 'big' : ''}">${head}${badge(v)}<div class="val">${esc(clubName(v))}</div></div>`;
-  if (slot === 'country') return `<div class="tile ${big ? 'big' : ''}">${head}<div class="flag">${FLAGS[v] || '🏳️'}</div><div class="val">${esc(v)}</div></div>`;
-  return `<div class="tile ${big ? 'big' : ''}">${head}${pitchSVG(v, false)}<div class="val">${esc(POS_NAMES[v])}</div></div>`;
+  if (!v) return `<div class="tile empty t-${slot}">${head}<div class="q">?</div><div class="by">Open</div></div>`;
+  if (v === 'wait') return `<div class="tile empty t-${slot}">${head}<div class="q">…</div><div class="by">${esc(by)} is choosing</div></div>`;
+  if (v === true) return `<div class="tile locked t-${slot}">${head}<div class="val">Chosen</div><div class="by">by ${esc(by)}</div></div>`;
+  if (slot === 'club') return `<div class="tile t-${slot} ${big ? 'big' : ''}">${head}${badge(v)}<div class="val">${esc(clubName(v))}</div></div>`;
+  if (slot === 'country') return `<div class="tile t-${slot} ${big ? 'big' : ''}">${head}<div class="flag">${FLAGS[v] || '🏳️'}</div><div class="val">${esc(v)}</div></div>`;
+  return `<div class="tile t-${slot} ${big ? 'big' : ''}">${head}${pitchSVG(v, false)}<div class="val">${esc(POS_NAMES[v])}</div></div>`;
 }
 
 // Football pitch, attacking upwards. Interactive on the pick screen, a small marker in the clue tile.
@@ -1367,7 +1367,7 @@ function flash(text, type = 'info', html = false) {
 // ---------------- screens ----------------
 function renderHome() {
   return `${topbar()}
-  <div class="hero"><h1>Name the <em>one</em> who fits.</h1>
+  <div class="hero"><h1>Three clues.<br>One footballer.</h1>
   <p>Players call out a club, a country and, with three players, a position, all at the same moment. First to name a footballer who fits every clue takes the point. Ten rounds, most points wins.</p></div>
   <button class="card tap" data-act="nav" data-to="ai"><h3>🤖 Vs Computer</h3><p>Solo against one or two computer opponents. Pick a difficulty.</p></button>
   <button class="card tap" data-act="nav" data-to="online"><h3>🌐 Online</h3><p>Make a room, share the code or QR, and play from separate devices.</p></button>
