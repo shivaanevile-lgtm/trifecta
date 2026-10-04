@@ -1293,7 +1293,7 @@ const store = {
 let screen = 'home'; // home | ai | local | online | lobby | game
 let G = null;
 let ctx = { kind: null, me: 0, offset: 0, code: null, token: null, msg: '', mt: 'info', ack: null, mkey: '' };
-const F = { name: store.get('name') || '', opp: 1, diff: 'medium', n: 2, names: ['', '', ''], join: '', pickSec: 10 };
+const F = { name: store.get('name') || '', opp: 1, diff: 'medium', n: 2, names: ['', '', ''], join: '', pickSec: 15 };
 let planned = new Set();
 let aiTimers = [];
 let pollTimer = null;
@@ -1373,7 +1373,7 @@ function renderHome() {
   <button class="card tap" data-act="nav" data-to="online"><h3>🌐 Online</h3><p>Make a room, share the code or QR, and play from separate devices.</p></button>
   <button class="card tap" data-act="nav" data-to="local"><h3>👥 Pass and play</h3><p>Two or three people on one device, with buzzers.</p></button>
   <div class="card how"><h3>How a round works</h3><ol>
-    <li>At the same time, every player chooses one clue to say: the <b>club</b>, the <b>country</b> or the <b>position</b> (picked on a pitch). Each clue can only be taken once, and you get 5 to 10 seconds.</li>
+    <li>At the same time, every player chooses one clue to say: the <b>club</b>, the <b>country</b> or the <b>position</b> (picked on a pitch). Each clue can only be taken once, and you get 5 to 15 seconds.</li>
     <li>If the timer runs out on someone, they can restart it or take a random pick.</li>
     <li>The clues are revealed. Everyone races to name a footballer who has <b>played for that club</b>, is from that <b>country</b> and has <b>played that position</b>.</li>
     <li>A player who fits all clues wins the point. Naming someone who does not fit knocks you out of that round.</li>
@@ -1382,7 +1382,7 @@ function renderHome() {
 }
 
 function timerSeg() {
-  return `<label class="f">Clue timer</label><div class="seg">${[5, 7, 10].map(x => `<button class="${F.pickSec === x ? 'on' : ''}" data-act="form" data-k="pickSec" data-v="${x}">${x} sec</button>`).join('')}</div>`;
+  return `<label class="f">Clue timer</label><div class="seg">${[5, 7, 15].map(x => `<button class="${F.pickSec === x ? 'on' : ''}" data-act="form" data-k="pickSec" data-v="${x}">${x} sec</button>`).join('')}</div>`;
 }
 
 function renderAISetup() {
@@ -1477,8 +1477,9 @@ function pickerUI(slot) {
     return `${pitchSVG(null, true, okSet)}<div class="pitchcap">Tap the spot on the pitch.<br>DM defensive mid · CM central mid · AM attacking mid</div>
   <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="pos">🎲 Surprise me</button></div>`;
   }
-  const search = slot === 'pos' ? '' : `<input class="in" id="q" placeholder="Search ${slot === 'club' ? 'clubs' : 'countries'}…" autocomplete="off" style="margin-bottom:10px">`;
-  return `${search}<div class="grid" id="pickgrid">${items}</div>
+  const big = store.get('big') === '1';
+  const search = slot === 'pos' ? '' : `<div class="searchrow"><input class="in" id="q" placeholder="Search ${slot === 'club' ? 'clubs' : 'countries'}…" autocomplete="off"><button class="btn alt sm" id="bigbtn" data-act="bigtoggle" aria-pressed="${big}">${big ? 'Smaller' : 'Enlarge'}</button></div>`;
+  return `${search}<div class="grid${big ? ' big' : ''}" id="pickgrid">${items}</div>
   <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="${slot}">🎲 Surprise me</button></div>`;
 }
 
@@ -1885,6 +1886,7 @@ const actions = {
     if (r.ok) { G.v++; render(); } else voiceStop();
   },
   mic() { if (VOICE.on) voiceStop(); else voiceStart(); },
+  bigtoggle() { const on = store.get('big') !== '1'; store.set('big', on ? '1' : '0'); const g = $('#pickgrid'); if (g) g.classList.toggle('big', on); const b = $('#bigbtn'); if (b) { b.textContent = on ? 'Smaller' : 'Enlarge'; b.setAttribute('aria-pressed', String(on)); } },
   voiceauto() { VOICE.auto = !VOICE.auto; store.set('voice', VOICE.auto ? '1' : '0'); render(); },
   giveup() { for (let i = 0; i < G.n; i++) if (G.phase === 'answer') E.skip(G, i, Date.now()); G.v++; render(); },
   async next() {

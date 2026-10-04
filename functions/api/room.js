@@ -94,7 +94,7 @@ export async function onRequest({ request, env }) {
       const n = body.n === 3 ? 3 : 2;
       const now = Date.now();
       await DB.prepare('DELETE FROM trifecta_rooms WHERE updated < ?').bind(now - 6 * 3600 * 1000).run();
-      const pickMs = [5, 7, 10].includes(Number(body.pickSec)) ? Number(body.pickSec) * 1000 : 10000;
+      const pickMs = [5, 7, 15].includes(Number(body.pickSec)) ? Number(body.pickSec) * 1000 : 15000;
       const s = E.newGame({ mode: 'online', players: Array.from({ length: n }, () => ({ name: null })), pickMs });
       const token = rid();
       s.players[0].name = cleanName(body.name, 'Player 1');

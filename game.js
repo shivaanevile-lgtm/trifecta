@@ -1095,7 +1095,7 @@ export const CFG = {
   BUZZ_MS: 15000,
   REVEAL_MS: 10000,
   MAX_EXTRA: 5,
-  PICK_MS: 10000, // default time to choose a clue; 5000-10000 offered in the UI
+  PICK_MS: 15000, // default time to choose a clue; 5000-15000 offered in the UI
 };
 
 export const ALL_SLOTS = ['club', 'country', 'pos'];
@@ -1118,7 +1118,7 @@ export function newGame({ mode, players, rounds, pickMs }) {
     round: 0,
     phase: 'lobby', // lobby | pick | answer | reveal | over
     slots: slotsFor(players.length),
-    pickMs: Math.min(10000, Math.max(5000, pickMs || CFG.PICK_MS)),
+    pickMs: Math.min(15000, Math.max(5000, pickMs || CFG.PICK_MS)),
     pickDeadline: 0, // 0 = timer not running (pass-and-play waits for the next player)
     pickTimedOut: false, // true once the clock ran out with someone still to choose
     turn: 0, // pass-and-play only: whose turn it is to choose
