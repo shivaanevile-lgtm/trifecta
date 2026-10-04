@@ -1456,6 +1456,7 @@ function renderGame() {
   let h = topbar(leave);
   if (G.phase === 'over') return h + overView();
   h += roundBar() + scoreboard();
+  if (G.phase !== 'pick') PICKFULL = false;
   if (G.phase === 'pick') h += pickView();
   else if (G.phase === 'answer') h += answerView();
   else if (G.phase === 'reveal') h += revealView();
@@ -1465,6 +1466,7 @@ function renderGame() {
 // ---- pick ----
 const CAT_HINT = { club: 'I will name a club', country: 'I will name a country', pos: 'I will pick a position' };
 
+let PICKFULL = false;
 function pickerUI(slot) {
   const okSet = okValues(slot);
   let items = '';
@@ -1477,10 +1479,9 @@ function pickerUI(slot) {
     return `${pitchSVG(null, true, okSet)}<div class="pitchcap">Tap the spot on the pitch.<br>DM defensive mid · CM central mid · AM attacking mid</div>
   <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="pos">🎲 Surprise me</button></div>`;
   }
-  const big = store.get('big') === '1';
-  const search = slot === 'pos' ? '' : `<div class="searchrow"><input class="in" id="q" placeholder="Search ${slot === 'club' ? 'clubs' : 'countries'}…" autocomplete="off"><button class="btn alt sm" id="bigbtn" data-act="bigtoggle" aria-pressed="${big}">${big ? 'Smaller' : 'Enlarge'}</button></div>`;
-  return `${search}<div class="grid${big ? ' big' : ''}" id="pickgrid">${items}</div>
-  <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="${slot}">🎲 Surprise me</button></div>`;
+  const search = slot === 'pos' ? '' : `<div class="searchrow"><input class="in" id="q" placeholder="Search ${slot === 'club' ? 'clubs' : 'countries'}…" autocomplete="off"><button class="btn alt sm" data-act="bigtoggle">Full screen</button></div>`;
+  return `<div class="pickwrap${PICKFULL ? ' full' : ''}" id="pickwrap"><div class="fullhead"><b>${slot === 'club' ? 'Choose the club' : 'Choose the country'}</b><button class="btn alt sm" data-act="bigtoggle">Close</button></div>${pickTimer()}${search}<div class="grid" id="pickgrid">${items}</div>
+  <div style="margin-top:10px"><button class="btn alt" data-act="pickrandom" data-slot="${slot}">🎲 Surprise me</button></div></div>`;
 }
 
 function pickTimer() {
@@ -1886,7 +1887,7 @@ const actions = {
     if (r.ok) { G.v++; render(); } else voiceStop();
   },
   mic() { if (VOICE.on) voiceStop(); else voiceStart(); },
-  bigtoggle() { const on = store.get('big') !== '1'; store.set('big', on ? '1' : '0'); const g = $('#pickgrid'); if (g) g.classList.toggle('big', on); const b = $('#bigbtn'); if (b) { b.textContent = on ? 'Smaller' : 'Enlarge'; b.setAttribute('aria-pressed', String(on)); } },
+  bigtoggle() { PICKFULL = !PICKFULL; const w = $('#pickwrap'); if (w) w.classList.toggle('full', PICKFULL); },
   voiceauto() { VOICE.auto = !VOICE.auto; store.set('voice', VOICE.auto ? '1' : '0'); render(); },
   giveup() { for (let i = 0; i < G.n; i++) if (G.phase === 'answer') E.skip(G, i, Date.now()); G.v++; render(); },
   async next() {

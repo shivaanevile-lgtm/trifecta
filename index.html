@@ -124,10 +124,12 @@ label.f { display: block; font-size: 13px; font-weight: 600; color: var(--muted)
 .searchrow { display: flex; gap: 8px; margin-bottom: 10px; }
 .searchrow .in { flex: 1; min-width: 0; }
 .searchrow .btn { flex: none; }
-.grid.big { grid-template-columns: repeat(2, 1fr); max-height: 62vh; gap: 10px; }
-.grid.big .gbtn { padding: 18px 8px; font-size: 16px; gap: 10px; }
-.grid.big .gbtn .flag { font-size: 56px; }
-.grid.big .badge.s { width: 64px; height: 64px; font-size: 18px; border-width: 3px; }
+.fullhead { display: none; }
+.pickwrap.full .searchrow .btn { display: none; }
+.pickwrap.full { position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow: auto; padding: 16px 16px 40px; max-width: none; }
+.pickwrap.full .fullhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; font-size: 20px; font-weight: 800; }
+.pickwrap.full .grid { max-height: none; overflow: visible; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+.pickwrap.full .searchrow { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 4px 0 8px; }
 .hide { display: none !important; }
 
 .bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; margin: 4px 0 14px; }
